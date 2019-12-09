@@ -136,6 +136,9 @@ class Mario(Object):
     def __init__(self, x, y):
         super().__init__(x,y)
         self.__states = {"toRight": True, "toLeft": False, "toBack": False}
+        self.__height = 12
+        self.__isUp = False
+        self.__setJump = False
 
     def move_right(self):
         self.__states["toRight"] = True
@@ -164,6 +167,36 @@ class Mario(Object):
     def fall(self):
         self.y = self.y + 1
 
+    def jumpUp(self):
+        self.__height -= 1
+        if self.__height > 3:
+            self.y = self.y - 1.5
+
+        if self.__height <= 0:
+            self.__isUp = True
+
+    def jumpDown(self):
+        self.__height += 1
+        if self.__height > 4:
+            self.y = self.y + 1.5
+
+        if self.__height == 12:
+            self.__isUp = False
+            self.__setJump = False
+
+
     @property
     def states(self):
         return self.__states
+    @property
+    def height(self):
+        return self.__height
+    @property
+    def isUp(self):
+        return self.__isUp
+    @property
+    def setJump(self):
+        return self.__setJump
+    @setJump.setter
+    def setJump(self, setJump):
+        self.__setJump = setJump

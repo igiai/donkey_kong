@@ -82,6 +82,28 @@ class Game:
                 if (self.__mario.x >= i.x-7  and self.__mario.x <= i.x+2 and self.__mario.y >= i.y-40 and self.__mario.y <= i.y-10 and i.broken == False):
                     self.__mario.move_down()
 
+        #Mario jump
+        if pyxel.btn(pyxel.KEY_SPACE):
+            self.__mario.setJump = True
+
+        if self.__mario.setJump == True and not self.__mario.isUp:
+            self.__mario.jumpUp()
+            if pyxel.btn(pyxel.KEY_RIGHT):
+                if self.__mario.height >= 0:
+                    self.__mario.move_right()
+            elif pyxel.btn(pyxel.KEY_LEFT):
+                if self.__mario.height >= 0:
+                    self.__mario.move_left()
+            else:
+                if self.__mario.height >= 0:
+                    self.__mario.jumpUp()
+        elif self.__mario.isUp or self.__mario.height < 12:
+            self.__mario.jumpDown()
+            if pyxel.btn(pyxel.KEY_LEFT):
+                self.__mario.move_left()
+            elif pyxel.btn(pyxel.KEY_RIGHT):
+                self.__mario.move_right()
+
         #Mario falls
         for i in self.__platforms:
             if self.__mario.x >= i.endRight and self.__mario.y <= i.y+15 and self.__mario.y >= i.y-33:
@@ -120,6 +142,7 @@ class Game:
 
         if self.__barrels[0].y == 234 and self.__barrels[0].x <= 24:
             self.__barrels.pop(0)
+
 
     #Function for drawing things on the screen
     def draw(self):
