@@ -112,8 +112,16 @@ class Game:
                 self.__mario.fall()
 
         #Create barrels
-        if pyxel.frame_count % randint(60,100) == 0 and len(self.__barrels) < 10:
-            self.__barrels.append(Barrel(BARREL_X, BARREL_Y))
+        if pyxel.frame_count % randint(60,100) == 0 and len(self.__barrels) < 10 and self.__donkeyKong.states["normal"]:
+            if self.__donkeyKong.inGrab >= 0:
+                self.__donkeyKong.grab()
+
+        if not self.__donkeyKong.states["normal"]:
+            if self.__donkeyKong.inGrab >= 0:
+                self.__donkeyKong.grab()
+
+            if self.__donkeyKong.inGrab == 5:
+                self.__barrels.append(Barrel(BARREL_X, BARREL_Y))
 
         #Barrels movements
         for b in self.__barrels:
@@ -140,8 +148,10 @@ class Game:
                 if (b.x >= i.x-7  and b.x <= i.x+2 and b.y >= i.y-40 and b.y <= i.y-6 and b.prob == i.prob):
                         b.fall()
 
-        if self.__barrels[0].y == 234 and self.__barrels[0].x <= 24:
-            self.__barrels.pop(0)
+        if len(self.__barrels) > 0:
+            for i in range(len(self.__barrels)):
+                if self.__barrels[i].y == 234 and self.__barrels[i].x <= 24:
+                    self.__barrels.pop(i)
 
 
     #Function for drawing things on the screen
@@ -177,7 +187,14 @@ class Game:
         pyxel.blt(18, 57, 0, 12, 102, 10, 17)
 
         #Draw donkey king
-        pyxel.blt(self.__donkeyKong.x, self.__donkeyKong.y, 0, 5, 57, 40, 33)
+        if self.__donkeyKong.states["normal"]:
+            pyxel.blt(self.__donkeyKong.x, self.__donkeyKong.y, 0, 5, 57, 40, 33)
+        elif self.__donkeyKong.states["toLeft"]:
+            pyxel.blt(self.__donkeyKong.x, self.__donkeyKong.y, 0, 53, 58, 43, 32)
+        elif self.__donkeyKong.states["withBarrel"]:
+            pyxel.blt(self.__donkeyKong.x, self.__donkeyKong.y, 0, 104, 58, 40, 32)
+        elif self.__donkeyKong.states["toRight"]:
+            pyxel.blt(self.__donkeyKong.x, self.__donkeyKong.y, 0, 53, 58, -43, 32)
 
         #Draw bonus box
         pyxel.blt(150, 10, 0, 181, 99, 43, 20)

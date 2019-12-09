@@ -59,6 +59,36 @@ class DonkeyKong(Object):
     def __init__(self, x, y):
         super().__init__(x,y)
         self.__states = {"normal": True, "toRight": False, "toLeft": False, "withBarrel": False}
+        self.__inGrab = 30
+
+
+    def grab(self):
+        if self.__inGrab > 20:
+            self.__states["normal"] = False
+            self.__states["toLeft"] = True
+            self.__inGrab -= 1
+        elif self.__inGrab <= 20 and self.__inGrab > 10:
+            self.__states["toLeft"] = False
+            self.__states["withBarrel"] = True
+            self.__inGrab -= 1
+        elif self.__inGrab <= 10 and self.__inGrab > 0:
+            self.__states["withBarrel"] = False
+            self.__states["toRight"] = True
+            self.__inGrab -= 1
+        else:
+            self.__states["toRight"] = False
+            self.__states["normal"] = True
+            self.__inGrab = 30
+
+    @property
+    def states(self):
+        return self.__states
+    @property
+    def inGrab(self):
+        return self.__inGrab
+    @states.setter
+    def states(self, states):
+        self.__states = states
 
 
 class Pauline(Object):
