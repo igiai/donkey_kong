@@ -79,6 +79,7 @@ class Game:
             self.barrel_movements(bar)
             self.barrel_ladder_falls(bar)
 
+        self.delete_barrel()
 
     #Function for drawing things on the screen
     def draw(self):
