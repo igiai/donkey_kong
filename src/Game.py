@@ -77,16 +77,8 @@ class Game:
 
         for bar in self.__barrels:
             self.barrel_movements(bar)
-            self.barrel_falls(bar)
+            self.barrel_ladder_falls(bar)
 
-
-        # if len(self.__barrels) > 0:
-        #     for i in range(len(self.__barrels)):
-        #         if self.__barrels[i].y == 234 and self.__barrels[i].x <= 24:
-        #             self.__barrels.pop(i)
-
-        if len(self.__barrels) > 0 and self.__barrels[0].y == 234 and self.__barrels[0].x <= 24:
-            self.__barrels.pop(0)
 
     #Function for drawing things on the screen
     def draw(self):
@@ -276,31 +268,48 @@ class Game:
                 self.__barrels.append(Barrel(BARREL_X, BARREL_Y))
 
     def barrel_movements(self, barrel):
-            """
-            Barrels movements
-            Barrel can roll left or rigth only if on one of the platforms and
-            between left and right edge of the platorm
-            Barrel rotates right on platform shorter from right side and left
-            on platforms shorter on left side
-            """
-            for pl in self.__platforms:
-                if barrel.y in [203, 141, 79] and barrel.x <= pl.endRight:      #if barrel on platform shorter from right (6,4,2 counting from bottom to top)
-                    barrel.move_right()                                         #barrel moves right
-                elif ((barrel.x >= pl.endRight or barrel.x <= pl.endLeft-12)    #if barrel at the right or left edge of the platform
-                and barrel.y <= pl.y+19 and barrel.y >= pl.y-33):               #y coordinate conditions for the barrel not to fall to low
-                    barrel.fall()
-                elif barrel.y in [234, 172, 110] and barrel.x >= pl.endLeft:    #if barrel on platform shorter from left and bottom (5,3,1 counting from bottom to top)
-                    barrel.move_left()                                          #barrel moves left
-            if pyxel.frame_count % 3 == 0:
-                if barrel.states["toRight"]:
-                    barrel.rotateRight()
-                elif barrel.states["toLeft"]:
-                    barrel.rotateLeft()
-
-    def barrel_falls(self, barrel):
         """
-        Barrels falls
+        Barrels movements
+        Barrel can roll left or rigth only if on one of the platforms and
+        between left and right edge of the platorm
+        Barrel rotates right on platform shorter from right side and left
+        on platforms shorter on left side
+        """
+        for pl in self.__platforms:
+            if barrel.y in [203, 141, 79] and barrel.x <= pl.endRight:          #if barrel on platform shorter from right (6,4,2 counting from bottom to top)
+                barrel.move_right()                                             #barrel moves right
+            elif ((barrel.x >= pl.endRight or barrel.x <= pl.endLeft-12)        #if barrel at the right or left edge of the platform
+            and barrel.y <= pl.y+19 and barrel.y >= pl.y-33):                   #y coordinate conditions for the barrel not to fall to low
+                barrel.fall()
+            elif barrel.y in [234, 172, 110] and barrel.x >= pl.endLeft:        #if barrel on platform shorter from left and bottom (5,3,1 counting from bottom to top)
+                barrel.move_left()                                              #barrel moves left
+        if pyxel.frame_count % 3 == 0:                                          #animation condition, every 3 frames we change the animation of barrel to make the rotate
+            if barrel.states["toRight"]:                                        #if barrel moves right, make rotateRight animation
+                barrel.rotateRight()
+            elif barrel.states["toLeft"]:                                       #if barrel moves left, make rotateLeft animation
+                barrel.rotateLeft()
+
+    def barrel_ladder_falls(self, barrel):
+        """
+        Barrels ladder falls
+        Each barrel has prob atribute which if the same as the ladder it passes
+        allows it to fall that ladder
+        Prob for barrel and ladder can be number from range 1-4 which gives
+        barrel 25% chance for falling on the ladder
         """
         for lad in self.__ladders:
-            if (barrel.x >= lad.x-7  and barrel.x <= lad.x+2 and barrel.y >= lad.y-40 and barrel.y <= lad.y-6 and barrel.prob == lad.prob):
-                    barrel.fall()
+            if (barrel.x >= lad.x-7 and barrel.x <= lad.x+2 and                 #check if barrel is next to one of the ladders
+             barrel.y >= lad.y-40 and barrel.y <= lad.y-6 and
+             barrel.prob == lad.prob):                                          #if it is, check if has the same prob value as the ladder (1,2,3,4)
+                    barrel.fall()                                               #if all conditions are met, fall of the ladder
+
+    def delete_barrel(self):
+        """
+        Delete barrel
+        When barrel reaches the end point next to barrel with fire it
+        disappears and object its is deleted from the list
+        Always the firt created barrel is the first deleted - FIFO
+        """
+        if (len(self.__barrels) > 0 and self.__barrels[0].y == 234 and          #object can be deleted only if the list is not empty
+         self.__barrels[0].x <= 24):                                            #when barrel reaches the end point, disappears
+            self.__barrels.pop(0)
