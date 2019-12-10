@@ -116,8 +116,8 @@ class DonkeyKong(Object):
 
     def grab(self):
         """
-        Function changes Donkey Kong state over time to animate throwing the
-        barrel
+        Function changes Donkey Kong state over time, using movementTime
+        atribute to animate throwing the barrel
         """
         if self.__movementTime > 20:
             self.__states["normal"] = False
@@ -149,9 +149,9 @@ class DonkeyKong(Object):
 
 
 class Pauline(Object):
-        """
-        Class for Pauline
-        """
+    """
+    Class for Pauline
+    """
     def __init__(self, x, y):
         super().__init__(x,y)
 
@@ -160,13 +160,23 @@ class Pauline(Object):
 
 
 class Barrel(Object):
-    
+    """
+    Class for barrels
+    has the x, y attribute, which are the cooridinates of the barrel
+    the state attribute defines the actions of the barrel, if she is suposed to move right, left, and whiych direction it supposed to
+    rotate and if it is falling.
+    the prob attribute is the random number from 1 to 4, it is compared with the prob number from the ladder object. If the number is
+    the same the barrel is going to fell on the ladder. It has 25% chances to do that, this is a reason we the genereted number is 1-4
+    """
     def __init__(self, x, y):
         super().__init__(x,y)
         self.__prob = randint(1,4)
         self.__states = {"upLeft": True, "upRight": False, "downRight": False, "downLeft": False, "toRight": True, "toLeft": False}
 
     def draw(self):
+        """
+        this method draws the barrel, accorting to the state it is currently in.
+        """
         if self.__states["upLeft"]:
             pyxel.blt(self.x, self.y, 0, 35, 105, 12, 11, colkey=0)
         elif self.__states["upRight"]:
@@ -177,19 +187,31 @@ class Barrel(Object):
             pyxel.blt(self.x, self.y, 0, 107, 105, 12, 11, colkey=0)
 
     def move_right(self):
+        """
+        Simulates barrel right movement and changes it state
+        """
         self.x = self.x + 0.25
         self.__states["toRight"] = True
         self.__states["toLeft"] = False
 
     def move_left(self):
+        """
+        Simulates barrel left movement and changes it state
+        """
         self.x = self.x - 0.25
         self.__states["toRight"] = False
         self.__states["toLeft"] = True
 
     def fall(self):
+        """
+        Simulates the fall of the barrel
+        """
         self.y = self.y + 1
 
     def rotateRight(self):
+        """
+        Simulates the rotating of the barrel to the right
+        """
         if self.__states["upLeft"] == True:
             self.__states["upRight"] = True
             self.__states["upLeft"] = False
@@ -204,6 +226,9 @@ class Barrel(Object):
             self.__states["downLeft"] = False
 
     def rotateLeft(self):
+        """
+        Simulates the rotating of the barrel to the left
+        """
         if self.__states["upLeft"] == True:
             self.__states["upLeft"] = False
             self.__states["downLeft"] = True
@@ -226,13 +251,20 @@ class Barrel(Object):
         return self.__states
 
 class Mario(Object):
-
+    """
+    Class for Mario
+    For drawing reasons has the states atribute, depending on the state,
+    appropriate animation is drawn
+    """
     def __init__(self, x, y):
         super().__init__(x,y)
         self.__states = {"toRight": True, "toLeft": False, "toBack": False, "isUp": False, "inJump": False}
         self.__jumpHeight = 12
 
     def draw(self):
+        """
+        Function draws appropriate Mario sprite depending on the state
+        """
         if self.__states["toLeft"] == True:
             pyxel.blt(self.x, self.y, 0, 6, 32, 12, 15, colkey=0)
         if self.__states["toRight"] == True:
@@ -241,33 +273,57 @@ class Mario(Object):
             pyxel.blt(self.x, self.y, 0, 148, 33, 16, 15, colkey=0)
 
     def move_right(self):
+        """
+        Function simulates Mario's right movement
+        Changes Mario's x position and state for drawing purposes
+        """
         self.__states["toRight"] = True
         self.__states["toLeft"] = False
         self.__states["toBack"] = False
         self.x = self.x + 1
 
     def move_left(self):
+        """
+        Function simulates Mario's left movement
+        Changes Mario's x position and state for drawing purposes
+        """
         self.__states["toRight"] = False
         self.__states["toLeft"] = True
         self.__states["toBack"] = False
         self.x = self.x - 1
 
     def move_up(self):
+        """
+        Function simulates Mario's up movement
+        Changes Mario's y position and state for drawing purposes
+        """
         self.__states["toRight"] = False
         self.__states["toLeft"] = False
         self.__states["toBack"] = True
         self.y = self.y - 1
 
     def move_down(self):
+        """
+        Function simulates Mario's down movement
+        Changes Mario's y position and state for drawing purposes
+        """
         self.__states["toRight"] = False
         self.__states["toLeft"] = False
         self.__states["toBack"] = True
         self.y = self.y + 1
 
     def fall(self):
-            self.y = self.y + 1
+        """
+        Function simulates Mario's fall movement
+        Changes Mario's y position
+        """
+        self.y = self.y + 1
 
     def jumpUp(self):
+        """
+        Function simulates Mario's up movement while jumpung
+        Movement length depends on the jumpHeight atribute
+        """
         self.__jumpHeight -= 1
         if self.__jumpHeight > 3:
             self.y = self.y - 1.5
@@ -276,6 +332,10 @@ class Mario(Object):
             self.states["isUp"] = True
 
     def jumpDown(self):
+        """
+        Function simulates Mario's down movement while jumpung
+        Movement length depends on the jumpHeight atribute
+        """
         self.__jumpHeight += 1
         if self.__jumpHeight > 4:
             self.y = self.y + 1.5
@@ -283,7 +343,6 @@ class Mario(Object):
         if self.__jumpHeight == 12:
             self.states["isUp"] = False
             self.states["inJump"] = False
-
 
     @property
     def states(self):

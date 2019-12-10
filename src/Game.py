@@ -216,15 +216,15 @@ class Game:
         if (self.__mario.states["inJump"] == True and not
         self.__mario.states["isUp"]):                                           #ascend (jumpUp) until top (isUp)
             self.__mario.jumpUp()
-            if pyxel.btn(pyxel.KEY_RIGHT):                                      #left and right movements allowed while in jumpUp
+            if pyxel.btn(pyxel.KEY_RIGHT) and self.__mario.x <= RIGHT_BORDER:   #left and right movements allowed while in jumpUp
                     self.__mario.move_right()
-            elif pyxel.btn(pyxel.KEY_LEFT):
+            elif pyxel.btn(pyxel.KEY_LEFT) and self.__mario.x >= LEFT_BORDER:
                     self.__mario.move_left()
         elif self.__mario.states["isUp"]:                                       #descend (jumpDown) until bottom (not isUp)
             self.__mario.jumpDown()
-            if pyxel.btn(pyxel.KEY_LEFT):                                       #left and right movements allowed while in jumpDown
+            if pyxel.btn(pyxel.KEY_LEFT) and self.__mario.x >= LEFT_BORDER:     #left and right movements allowed while in jumpDown
                 self.__mario.move_left()
-            elif pyxel.btn(pyxel.KEY_RIGHT):
+            elif pyxel.btn(pyxel.KEY_RIGHT) and self.__mario.x <= RIGHT_BORDER:
                 self.__mario.move_right()
 
     def create_barrels(self):
