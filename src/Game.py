@@ -6,10 +6,13 @@ from Objects import *
 class Game:
 
     def __init__(self):
-
+        """
+        Class constructor
+        Creates all game's objects except for barrels
+        """
         #Create the game window
         pyxel.init(WIDTH, HEIGHT, caption=CAPTION)
-        # Load the pyxres file
+        #Load the pyxres file
         pyxel.load("../assets/my_resource.pyxres")
 
         #Lists for platforms, ladders and barrels
@@ -54,73 +57,123 @@ class Game:
         #Run game
         pyxel.run(self.update, self.draw)
 
-    #Function for calculations needed every frame
     def update(self):
-        #Esc to quit game
-        if pyxel.btnp(pyxel.KEY_ESCAPE):
+        """
+        Function for calculations needed every frame
+        Randomly creates barrels
+        """
+        if pyxel.btnp(pyxel.KEY_ESCAPE):                                        #Esc to quit game
             pyxel.quit()
 
-        #Mario movements
-        if pyxel.btn(pyxel.KEY_RIGHT):
-            for i in self.__platforms:
-                if self.__mario.x <= 182 and self.__mario.y == i.y-15:           #rigth border condition
-                    self.__mario.move_right()
-        if pyxel.btn(pyxel.KEY_LEFT):
-            for i in self.__platforms:
-                if self.__mario.y == 230:               #additional condition for the first platform
-                    if self.__mario.x >= 24 and self.__mario.y == i.y-15:            #fire border condition
-                        self.__mario.move_left()
-                else:
-                    if self.__mario.x >= 5 and self.__mario.y == i.y-15:             #left border condition
-                        self.__mario.move_left()
-        if pyxel.btn(pyxel.KEY_UP):
-            for i in self.__ladders:
-                if (self.__mario.x >= i.x-7  and self.__mario.x <= i.x+2 and self.__mario.y <= i.y-9 and self.__mario.y >= i.y-39 and i.broken == False):
-                    self.__mario.move_up()
-        if pyxel.btn(pyxel.KEY_DOWN):
-            for i in self.__ladders:
-                if (self.__mario.x >= i.x-7  and self.__mario.x <= i.x+2 and self.__mario.y >= i.y-40 and self.__mario.y <= i.y-10 and i.broken == False):
-                    self.__mario.move_down()
 
-        #Mario jump
-        if pyxel.btn(pyxel.KEY_SPACE):
-            self.__mario.setJump = True
-
-        if self.__mario.setJump == True and not self.__mario.isUp:
-            self.__mario.jumpUp()
+        for pl in self.__platforms:
+            """
+            Mario horizontal movements
+            Right movement allowed only when Mario's x coordinate within borders
+            and y coordinate appropriate for given platform
+            Left movement allowed only when Mario's x coordinate within borders
+            and y coordinate appropriate for given platform, on the first platform
+            diferent border due to barrel with fire
+            """
             if pyxel.btn(pyxel.KEY_RIGHT):
-                if self.__mario.height >= 0:
+                if (self.__mario.x <= RIGHT_BORDER and                          #rigth border condition
+                self.__mario.y == pl.y-MARIO_HEIGHT):                           #given plaform y coordinate condition
                     self.__mario.move_right()
             elif pyxel.btn(pyxel.KEY_LEFT):
-                if self.__mario.height >= 0:
+                if self.__mario.y == 230:                                       #if mario on the first platform
+                    if (self.__mario.x >= LEFT_BORDER+FIRE_WIDTH and            #left border with fire condition
+                    self.__mario.y == pl.y-MARIO_HEIGHT):                       #given plaform y coordinate condition
+                        self.__mario.move_left()
+                else:                                                           #other platforms
+                    if (self.__mario.x >= LEFT_BORDER and
+                    self.__mario.y == pl.y-MARIO_HEIGHT):
+                        self.__mario.move_left()
+            """
+            Mario falls
+            Fall happen when Mario gets to the end of platform
+            Fall movement lasts untill Mario's y coordinate value
+            reaches platform below
+            To prevent him from falling to low he can fall only when he is not
+            in jump movement
+            Right and left movements are allowed while in fall
+            """
+            if (self.__mario.x >= pl.endRight and not                           #end of platform on right condition
+            self.__mario.states["inJump"] and self.__mario.y <= pl.y+15 and     #not in jump conditions and y coordinate conditions
+            self.__mario.y >= pl.y-33):
+                self.__mario.fall()
+                if pyxel.btn(pyxel.KEY_RIGHT):
+                    self.__mario.move_right()
+                elif (pyxel.btn(pyxel.KEY_LEFT) and
+                self.__mario.x >= pl.endRight+1):                               #left movement allowed only to endRight coordinate
                     self.__mario.move_left()
-            else:
-                if self.__mario.height >= 0:
-                    self.__mario.jumpUp()
-        elif self.__mario.isUp or self.__mario.height < 12:
+            elif (self.__mario.x <= pl.endLeft-12 and not                       #end of platform on left condition
+            self.__mario.states["inJump"] and self.__mario.y <= pl.y+15 and     #not in jump conditions and y coordinate conditions
+            self.__mario.y >= pl.y-33):
+                self.__mario.fall()
+                if (pyxel.btn(pyxel.KEY_RIGHT) and
+                self.__mario.x <= pl.endLeft-13):                               #right movement allowed only to endLeft coordinate
+                    self.__mario.move_right()
+                elif pyxel.btn(pyxel.KEY_LEFT):
+                    self.__mario.move_left()
+
+        """
+        Mario vertical movements
+        Up movement allowed only when Mario's x coordinate within range of
+        one of the ladders width, y coordinate within range of one of the
+        ladders height, ladder is not broken and mario is not jumping
+        Down movement under the same conditions and up movement
+        """
+        for ld in self.__ladders:
+            if pyxel.btn(pyxel.KEY_UP):
+                if (self.__mario.x >= ld.x-7 and self.__mario.x <= ld.x+2 and   #ladder's width range conditions
+                self.__mario.y <= ld.y-9 and self.__mario.y >= ld.y-39 and      #ladder's height range conditions
+                ld.broken == False and not self.__mario.states["inJump"]):
+                    self.__mario.move_up()
+            elif pyxel.btn(pyxel.KEY_DOWN):
+                if (self.__mario.x >= ld.x-7 and self.__mario.x <= ld.x+2 and
+                self.__mario.y >= ld.y-40 and self.__mario.y <= ld.y-10 and
+                ld.broken == False and not self.__mario.states["inJump"]):
+                    self.__mario.move_down()
+
+        """
+        Mario jump
+        Jump movement when Space once pressed => inJump is set
+        Right and left movements are allowed while in jump
+        Jumps allowed only on platforms
+        """
+        if (pyxel.btn(pyxel.KEY_SPACE) and
+        self.__mario.y in MARIO_PLATFORMS):                                     #jumps only on platforms condition
+            self.__mario.states["inJump"] = True
+
+        if (self.__mario.states["inJump"] == True and not
+        self.__mario.states["isUp"]):                                           #ascend (jumpUp) until top (isUp)
+            self.__mario.jumpUp()
+            if pyxel.btn(pyxel.KEY_RIGHT):                                      #left and right movements allowed while in jumpUp
+                    self.__mario.move_right()
+            elif pyxel.btn(pyxel.KEY_LEFT):
+                    self.__mario.move_left()
+        elif self.__mario.states["isUp"]:                                       #descend (jumpDown) until bottom (not isUp)
             self.__mario.jumpDown()
-            if pyxel.btn(pyxel.KEY_LEFT):
+            if pyxel.btn(pyxel.KEY_LEFT):                                       #left and right movements allowed while in jumpDown
                 self.__mario.move_left()
             elif pyxel.btn(pyxel.KEY_RIGHT):
                 self.__mario.move_right()
 
-        #Mario falls
-        for i in self.__platforms:
-            if self.__mario.x >= i.endRight and self.__mario.y <= i.y+15 and self.__mario.y >= i.y-33:
-                self.__mario.fall()
-            elif self.__mario.x <= i.endLeft-12 and self.__mario.y <= i.y+15 and self.__mario.y >= i.y-33:
-                self.__mario.fall()
 
-        #Create barrels
-        if pyxel.frame_count % randint(60,100) == 0 and len(self.__barrels) < 10 and self.__donkeyKong.states["normal"]:
-            if self.__donkeyKong.inGrab >= 0:
-                self.__donkeyKong.grab()
+        """
+        Create barrels
+        Randomly create barrels, allow only 10 barrels at the same time
+        Call grab method to animate Donkey Kong movemets
+        Create and grab only allowed when Donkey Kong in normal state
+        """
+        if (pyxel.frame_count % randint(60,100) == 0 and
+        len(self.__barrels) < 10 and self.__donkeyKong.states["normal"]):
+            self.__donkeyKong.states["inGrab"] = True                           #if conditions are met, start DonkeyKong's grabing animation
 
-        if not self.__donkeyKong.states["normal"]:
-            if self.__donkeyKong.inGrab >= 0:
-                self.__donkeyKong.grab()
+        if self.__donkeyKong.states["inGrab"]:
+            self.__donkeyKong.grab()
 
-            if self.__donkeyKong.inGrab == 5:
+            if self.__donkeyKong.movementTime == 5:
                 self.__barrels.append(Barrel(BARREL_X, BARREL_Y))
 
         #Barrels movements
@@ -148,11 +201,13 @@ class Game:
                 if (b.x >= i.x-7  and b.x <= i.x+2 and b.y >= i.y-40 and b.y <= i.y-6 and b.prob == i.prob):
                         b.fall()
 
-        if len(self.__barrels) > 0:
-            for i in range(len(self.__barrels)):
-                if self.__barrels[i].y == 234 and self.__barrels[i].x <= 24:
-                    self.__barrels.pop(i)
+        # if len(self.__barrels) > 0:
+        #     for i in range(len(self.__barrels)):
+        #         if self.__barrels[i].y == 234 and self.__barrels[i].x <= 24:
+        #             self.__barrels.pop(i)
 
+        if len(self.__barrels) > 0 and self.__barrels[0].y == 234 and self.__barrels[0].x <= 24:
+            self.__barrels.pop(0)
 
     #Function for drawing things on the screen
     def draw(self):
