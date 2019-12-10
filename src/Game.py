@@ -81,51 +81,40 @@ class Game:
 
         self.delete_barrel()
 
-    #Function for drawing things on the screen
+
     def draw(self):
-        #Background - black(0)
-        pyxel.cls(0)
+        """
+        Function for drawing things on the screen
+        """
+        pyxel.cls(0)                                                            #Background - black(0)
 
         #Draw platforms
-        for i in self.__platforms:
-            for j in range(i.length):
-                pyxel.blt(i.x+j*7, i.y, 0, 0, 8, 7, 7)
+        for platform in self.__platforms:
+            platform.draw()
 
         #Draw ladders
-        for i in self.__ladders:
-            if i.broken:
-                pyxel.blt(i.x, i.y, 0, 0, 18, 8, 6, colkey=0)
-                pyxel.blt(i.x, i.y-18, 0, 0, 18, 8, 6, colkey=0)
-            else:
-                for j in range(4):
-                    pyxel.blt(i.x, i.y-6*j, 0, 0, 18, 8, 6, colkey=0)
+        for ladder in self.__ladders:
+            ladder.draw()
 
-        #Draw fire
+        #Draw barrel with fire
         pyxel.blt(7, 232, 0, 8, 2, 15, 13)
         pyxel.blt(8, 222, 0, 24, 4, 15, 10)
 
-        #Draw pauline
-        pyxel.blt(self.__pauline.x, self.__pauline.y, 0, 6, 179, 15, 22)
+        #Draw Pauline
+        self.__pauline.draw()
 
-        #Draw static barrels
+        #Draw static barrels at the top platform
         pyxel.blt(7, 73, 0, 12, 102, 10, 17)
         pyxel.blt(18, 73, 0, 12, 102, 10, 17)
         pyxel.blt(7, 57, 0, 12, 102, 10, 17)
         pyxel.blt(18, 57, 0, 12, 102, 10, 17)
 
         #Draw donkey king
-        if self.__donkeyKong.states["normal"]:
-            pyxel.blt(self.__donkeyKong.x, self.__donkeyKong.y, 0, 5, 57, 40, 33)
-        elif self.__donkeyKong.states["toLeft"]:
-            pyxel.blt(self.__donkeyKong.x, self.__donkeyKong.y, 0, 53, 58, 43, 32)
-        elif self.__donkeyKong.states["withBarrel"]:
-            pyxel.blt(self.__donkeyKong.x, self.__donkeyKong.y, 0, 104, 58, 40, 32)
-        elif self.__donkeyKong.states["toRight"]:
-            pyxel.blt(self.__donkeyKong.x, self.__donkeyKong.y, 0, 53, 58, -43, 32)
+        self.__donkeyKong.draw()
 
         #Draw bonus box
         pyxel.blt(150, 10, 0, 181, 99, 43, 20)
-        score = 2054
+        score = 2019
         pyxel.text(164, 20, str(score), 7)
 
         #Draw lives
@@ -133,25 +122,13 @@ class Game:
         pyxel.blt(17, 10, 0, 131, 8, 7, 7)
         pyxel.blt(26, 10, 0, 131, 8, 7, 7)
 
-        #Draw Barrels
-        for i in self.__barrels:
-            if i.states["upLeft"]:
-                pyxel.blt(i.x, i.y, 0, 35, 105, 12, 11, colkey=0)
-            elif i.states["upRight"]:
-                pyxel.blt(i.x, i.y, 0, 59, 105, 12, 11, colkey=0)
-            elif i.states["downRight"]:
-                pyxel.blt(i.x, i.y, 0, 83, 105, 12, 11, colkey=0)
-            elif i.states["downLeft"]:
-                pyxel.blt(i.x, i.y, 0, 107, 105, 12, 11, colkey=0)
-
+        #Draw barrels
+        for barrel in self.__barrels:
+            barrel.draw()
 
         #Draw mario
-        if self.__mario.states["toLeft"] == True:
-            pyxel.blt(self.__mario.x, self.__mario.y, 0, 6, 32, 12, 15, colkey=0)
-        if self.__mario.states["toRight"] == True:
-            pyxel.blt(self.__mario.x, self.__mario.y, 0, 6, 32, -12, 15, colkey=0)
-        if self.__mario.states["toBack"]:
-            pyxel.blt(self.__mario.x, self.__mario.y, 0, 148, 33, 16, 15, colkey=0)
+        self.__mario.draw()
+
 
     def mario_horizontal_movements(self, platform):
         """
