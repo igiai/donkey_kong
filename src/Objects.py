@@ -58,34 +58,34 @@ class DonkeyKong(Object):
 
     def __init__(self, x, y):
         super().__init__(x,y)
-        self.__states = {"normal": True, "toRight": False, "toLeft": False, "withBarrel": False}
-        self.__inGrab = 30
-
+        self.__states = {"normal": True, "toRight": False, "toLeft": False, "withBarrel": False, "inGrab": False}
+        self.__movementTime = 30
 
     def grab(self):
-        if self.__inGrab > 20:
+        if self.__movementTime > 20:
             self.__states["normal"] = False
             self.__states["toLeft"] = True
-            self.__inGrab -= 1
-        elif self.__inGrab <= 20 and self.__inGrab > 10:
+            self.__movementTime -= 1
+        elif self.__movementTime <= 20 and self.__movementTime > 10:
             self.__states["toLeft"] = False
             self.__states["withBarrel"] = True
-            self.__inGrab -= 1
-        elif self.__inGrab <= 10 and self.__inGrab > 0:
+            self.__movementTime -= 1
+        elif self.__movementTime <= 10 and self.__movementTime > 0:
             self.__states["withBarrel"] = False
             self.__states["toRight"] = True
-            self.__inGrab -= 1
+            self.__movementTime -= 1
         else:
             self.__states["toRight"] = False
             self.__states["normal"] = True
-            self.__inGrab = 30
+            self.__states["inGrab"] = False
+            self.__movementTime = 30
 
     @property
     def states(self):
         return self.__states
     @property
-    def inGrab(self):
-        return self.__inGrab
+    def movementTime(self):
+        return self.__movementTime
     @states.setter
     def states(self, states):
         self.__states = states
@@ -165,10 +165,8 @@ class Mario(Object):
 
     def __init__(self, x, y):
         super().__init__(x,y)
-        self.__states = {"toRight": True, "toLeft": False, "toBack": False}
-        self.__height = 12
-        self.__isUp = False
-        self.__setJump = False
+        self.__states = {"toRight": True, "toLeft": False, "toBack": False, "isUp": False, "inJump": False}
+        self.__jumpHeight = 12
 
     def move_right(self):
         self.__states["toRight"] = True
@@ -195,38 +193,33 @@ class Mario(Object):
         self.y = self.y + 1
 
     def fall(self):
-        self.y = self.y + 1
+            self.y = self.y + 1
+
 
     def jumpUp(self):
-        self.__height -= 1
-        if self.__height > 3:
+        self.__jumpHeight -= 1
+        if self.__jumpHeight > 3:
             self.y = self.y - 1.5
 
-        if self.__height <= 0:
-            self.__isUp = True
+        if self.__jumpHeight <= 0:
+            self.states["isUp"] = True
 
     def jumpDown(self):
-        self.__height += 1
-        if self.__height > 4:
+        self.__jumpHeight += 1
+        if self.__jumpHeight > 4:
             self.y = self.y + 1.5
 
-        if self.__height == 12:
-            self.__isUp = False
-            self.__setJump = False
+        if self.__jumpHeight == 12:
+            self.states["isUp"] = False
+            self.states["inJump"] = False
 
 
     @property
     def states(self):
         return self.__states
     @property
-    def height(self):
-        return self.__height
-    @property
-    def isUp(self):
-        return self.__isUp
-    @property
-    def setJump(self):
-        return self.__setJump
-    @setJump.setter
-    def setJump(self, setJump):
-        self.__setJump = setJump
+    def jumpHeight(self):
+        return self.__jumpHeight
+    @states.setter
+    def states(self, states):
+        self.__states = states
