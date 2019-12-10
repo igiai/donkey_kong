@@ -100,15 +100,17 @@ class Barrel(Object):
     def __init__(self, x, y):
         super().__init__(x,y)
         self.__prob = randint(1,4)
-        self.__states = {"upLeft": True, "upRight": False, "downRight": False, "downLeft": False}
-        self.__toRight = True
-        self.__toleft = False
+        self.__states = {"upLeft": True, "upRight": False, "downRight": False, "downLeft": False, "toRight": True, "toLeft": False}
 
     def move_right(self):
         self.x = self.x + 0.25
+        self.__states["toRight"] = True
+        self.__states["toLeft"] = False
 
     def move_left(self):
         self.x = self.x - 0.25
+        self.__states["toRight"] = False
+        self.__states["toLeft"] = True
 
     def fall(self):
         self.y = self.y + 1
@@ -148,18 +150,6 @@ class Barrel(Object):
     @property
     def states(self):
         return self.__states
-    @property
-    def toRight(self):
-        return self.__toRight
-    @property
-    def toLeft(self):
-        return self.__toleft
-    @toRight.setter
-    def toRight(self, toRight):
-        self.__toRight = toRight
-    @toLeft.setter
-    def toLeft(self, toLeft):
-        self.__toleft = toLeft
 
 class Mario(Object):
 
