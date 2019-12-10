@@ -187,7 +187,7 @@ class Game:
         self.__mario.states["inJump"] and self.__mario.y <= platform.y+15 and   #not in jump conditions and y coordinate conditions
         self.__mario.y >= platform.y-33):
             self.__mario.fall()
-            if pyxel.btn(pyxel.KEY_RIGHT):
+            if pyxel.btn(pyxel.KEY_RIGHT) and self.__mario.x <= RIGHT_BORDER:
                 self.__mario.move_right()
             elif (pyxel.btn(pyxel.KEY_LEFT) and
             self.__mario.x >= platform.endRight+1):                             #left movement allowed only to endRight coordinate
@@ -199,7 +199,7 @@ class Game:
             if (pyxel.btn(pyxel.KEY_RIGHT) and
             self.__mario.x <= platform.endLeft-13):                             #right movement allowed only to endLeft coordinate
                 self.__mario.move_right()
-            elif pyxel.btn(pyxel.KEY_LEFT):
+            elif pyxel.btn(pyxel.KEY_LEFT) and self.__mario.x >= LEFT_BORDER:
                 self.__mario.move_left()
 
     def mario_jump(self):
